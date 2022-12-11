@@ -9,6 +9,10 @@ Python 3.10.9
 
 ## 参考
 
+### 筆ポリゴンダウンロード先
+
+- https://survey123.arcgis.com/share/f41ff4a19b5545e992374fdb326fadcc
+
 ### 環境構築
 
 - https://kokiblog.com/2022/01/20/anyenv-pyenv-pipenv/
