@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from map_gennerator.utils import calcPixcelCoordinate, calcTileCoordinate, calcIntraTileCoordinate
+from map_gennerator.drawPolygons import drawPolygons
 from PIL import ImageFont, Image, ImageDraw
 import json
 
@@ -62,73 +63,8 @@ def main():
             # 
             number += 1
 
-    polygons = json.load(open('./json/2022_122319.json', 'r'))['features']
-    for polygon in polygons:
-        coordinates = polygon['geometry']['coordinates'][0]
-        # NOTE: タイル画像の中に含まれるかどうかチェック
-        isContain = False
-        for coordinate in coordinates:
-            pixcelX, pixcelY, _ = calcPixcelCoordinate(coordinate[1], coordinate[0], z)
-            x = pixcelX - 256 * minX
-            y = pixcelY - 256 * minY
-            
-            if x > 0 and y > 0 and x < (256 * xBlockSize) and y < (256 * yBlockSize):
-                isContain = True
-                break
-
-        # NOTE: 含まれる場合はポリゴンを描画
-        if isContain:
-            points = []
-            for coordinate in coordinates:
-                pixcelX, pixcelY, _ = calcPixcelCoordinate(coordinate[1], coordinate[0], z)
-                x = pixcelX - 256 * minX
-                y = pixcelY - 256 * minY
-                                
-                if x < 0:
-                    x = 0
-                
-                if y < 0:
-                    y = 0
-                
-                points.append(x)
-                points.append(y)
-            
-            # NOTE: https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html
-            draw.polygon(points, fill = None, outline=(0, 0, 0), width=3)
-
-    polygons = json.load(open('./json/2022_122122.json', 'r'))['features']
-    for polygon in polygons:
-        coordinates = polygon['geometry']['coordinates'][0]
-        # NOTE: タイル画像の中に含まれるかどうかチェック
-        isContain = False
-        for coordinate in coordinates:
-            pixcelX, pixcelY, _ = calcPixcelCoordinate(coordinate[1], coordinate[0], z)
-            x = pixcelX - 256 * minX
-            y = pixcelY - 256 * minY
-            
-            if x > 0 and y > 0 and x < (256 * xBlockSize) and y < (256 * yBlockSize):
-                isContain = True
-                break
-
-        # NOTE: 含まれる場合はポリゴンを描画
-        if isContain:
-            points = []
-            for coordinate in coordinates:
-                pixcelX, pixcelY, _ = calcPixcelCoordinate(coordinate[1], coordinate[0], z)
-                x = pixcelX - 256 * minX
-                y = pixcelY - 256 * minY
-                                
-                if x < 0:
-                    x = 0
-                
-                if y < 0:
-                    y = 0
-                
-                points.append(x)
-                points.append(y)
-            
-            # NOTE: https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html
-            draw.polygon(points, fill = None, outline=(0, 0, 0), width=3)
+    drawPolygons('./json/2022_122319.json', draw, z, minX, minY, xBlockSize, yBlockSize)
+    drawPolygons('./json/2022_122122.json', draw, z, minX, minY, xBlockSize, yBlockSize)
 
     img.save('./img/polygon_map.png')
     print('<< 国土地理院のタイル画像から地図を生成 done')
