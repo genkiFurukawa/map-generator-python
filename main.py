@@ -4,6 +4,7 @@ from map_gennerator.utils import calcPixcelCoordinate, calcTileCoordinate, calcI
 from map_gennerator.drawPolygons import drawPolygons
 from PIL import ImageFont, Image, ImageDraw
 import requests
+import os
 
 def main():
     top, bottom = 35.75621375767344, 35.740511743214284
@@ -26,8 +27,10 @@ def main():
         for y in range(minY, maxY + 1):
             url = 'https://cyberjapandata.gsi.go.jp/xyz/ort/' + str(z) + '/' + str(x) + '/' + str(y) + '.jpg'
             response = requests.get(url)
-            with open('./tmp/divided/' + str(z) + '_' + str(x) + '_' + str(y) + '.jpg' , "wb") as f:
-                f.write(response.content)
+            path = './tmp/divided/' + str(z) + '_' + str(x) + '_' + str(y) + '.jpg'
+            if not os.path.exists(path):
+                with open(path , "wb") as f:
+                    f.write(response.content)
     print('<< 国土地理院からファイルをダウンロード done')
 
     # 3. 地図を合体(TSで実装)
