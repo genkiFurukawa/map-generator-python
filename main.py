@@ -2,6 +2,7 @@
 
 import os
 import sys
+import argparse
 from datetime import datetime
 from glob import glob
 import ulid
@@ -12,18 +13,8 @@ from map_gennerator.mergeTileImages import mergeTileImages
 from map_gennerator.drawDividingLines import drawDividingLines
 from map_gennerator.generateGridImages import generateGridImages
 
-def main():
+def main(top, bottom, left, right, gridX, gridY, resultDir):
     z = 18
-    # NOTE: 左上と右下の緯度経度とグリッドサイズを指定する(いずれはコマンドラインでパースする)
-    top, bottom = 35.75621375767344, 35.740511743214284
-    left, right = 140.2267393761772, 140.24713616224628
-    gridX, gridY = 3, 2
-    resultDir = './result/sample01/'
-
-    if not os.path.isdir(resultDir):
-        print(str(datetime.now()) + ' [error] 結果を保存するディレクトリ( ' + resultDir + ' )が存在しません ')
-        sys.exit(1)
-
     # 一時保存するディレクトリのパス
     tmpDir = './tmp/' + ulid.new().str + '/'
     if not os.path.isdir(tmpDir):
@@ -77,4 +68,28 @@ def main():
     generateGridImages(dividingLineImagePath, dividedImageDir, minX, maxX, minY, maxY, gridX, gridY)
 
 if __name__ == '__main__':
-    main()
+    # 引数の設定
+    parser = argparse.ArgumentParser(description='指定した緯度経度の範囲の国土地理院のタイル画像をダウンロードし、地図を生成するスクリプト')
+    parser.add_argument('-t', '--top'   , help='生成したい地図の範囲の左上の座標の緯度'  , type=float, required=True)
+    parser.add_argument('-b', '--bottom', help='生成したい地図の範囲の右下の座標の緯度'  , type=float, required=True)
+    parser.add_argument('-r', '--right' , help='生成したい地図の範囲の右下の座標の経度'  , type=float, required=True)
+    parser.add_argument('-l', '--left'  , help='生成したい地図の範囲の左上の座標の経度'  , type=float, required=True)
+    parser.add_argument('-x', '--x'     , help='分割する地図のx軸方向のマスのサイズ'    , type=int  , default=3)
+    parser.add_argument('-y', '--y'     , help='分割する地図のy軸方向のマスのサイズ'    , type=int  , default=2)
+    parser.add_argument('-o', '--output', help='生成されたファイルを配置するディレクトリ', type=str  , required=True)
+
+    # コマンドラインの引数のパース
+    # 例: python main.py -t 35.75621375767344 -b 35.740511743214284 -l 140.2267393761772 -r 140.24713616224628 -x 3 -y 2 -o ./result/sample01/
+    # 例: python main.py -t 35.66141986436027 -b 35.65137502304069 -l 139.74439116714916 -r 139.76127803879115 -x 3 -y 2 -o ./result/sample05/
+    args = parser.parse_args()
+    top, bottom = args.top, args.bottom
+    left, right = args.left, args.right
+    gridX, gridY = args.x, args.y
+    resultDir = args.output
+
+    if not os.path.isdir(resultDir):
+        print(str(datetime.now()) + ' [error] 結果を保存するディレクトリ( ' + resultDir + ' )が存在しません ')
+        sys.exit(1)
+
+    # 処理の実行
+    main(top, bottom, left, right, gridX, gridY, resultDir)
