@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import os
 from datetime import datetime
-import glob
+from glob import glob
+import ulid
 from map_gennerator.utils import calcPixcelCoordinate, calcTileCoordinate, calcIntraTileCoordinate
 from map_gennerator.drawPolygons import drawPolygons
 from map_gennerator.downloadTileImages import downloadTileImages
@@ -15,6 +17,12 @@ def main():
     top, bottom = 35.75621375767344, 35.740511743214284
     left, right = 140.2267393761772, 140.24713616224628
     gridX, gridY = 3, 2
+    resultDir = './result/sample01/'
+
+    # 一時保存するディレクトリのパス
+    tmpDir = './tmp/' + ulid.new().str + '/'
+    if not os.path.isdir(tmpDir):
+        os.mkdir(tmpDir)
 
     # 1. タイル画像をダウンロードする範囲を計算する
     print(str(datetime.now()) + ' 国土地理院からタイル画像をダウンロードするためのタイル座標を計算(1/5)')
@@ -37,28 +45,30 @@ def main():
 
     # 3. 国土地理院からダウンロードした地図を合成する
     print(str(datetime.now()) + ' 国土地理院からタイル画像をダウンロードした画像を結合(3/5)')
-    mergeImagePath = './tmp/テスト.png'
+    mergeImagePath = tmpDir + 'entire_map.png'
     mergeTileImages(imageSizeX, imageSizeY, minX, maxX, minY, maxY, z, tileImageDir, mergeImagePath)
 
     # 4. 地図に線を引いて区画を区切り、番号を付与して保存
     print(str(datetime.now()) + ' 結合したタイル画像に対して区画番号を付与(4/5)')
-    dividingLineImagePath = './tmp/区切り線付き_地図.png'
+    dividingLineImagePath = resultDir + '番号付き_全体地図.png'
     drawDividingLines(mergeImagePath, dividingLineImagePath, minX, maxX, minY, maxY, gridX, gridY, (0, 0, 0), 5, True)
 
     # 5. それぞれの区画にgeojsonのポリゴンの線を引いて、区画ごとに保存（区画は補助線をつける）
     print(str(datetime.now()) + ' 区画番号ごとにポリゴンを描画して画像を保存(5/5)')
     # 地図全体に補助線を引く
-    dividingLineImagePath = './tmp/ポリゴン付き_地図.png'
+    dividingLineImagePath = tmpDir + 'entire_map_with_polygons.png'
     drawDividingLines(mergeImagePath, dividingLineImagePath, minX, maxX, minY, maxY, gridX, gridY, (127, 127, 127), 5, False)
 
     # json形式のポリゴンを描画する
-    jsonFiles = glob.glob('./json/*.json')
+    jsonFiles = glob('./json/*.json')
     for jsonFile in jsonFiles:
         print(str(datetime.now()) + '   圃場ポリゴンを描画 (json: ' + jsonFile + ')')
         drawPolygons(jsonFile, dividingLineImagePath, dividingLineImagePath, minX, maxX, minY, maxY, z)
 
-    # ばんごとに分割してファイルを保存する
-    dividedImageDir = './tmp/divided/'
+    # 番号ごとに分割してファイルを保存する
+    dividedImageDir = resultDir + '分割/'
+    if not os.path.isdir(dividedImageDir ):
+        os.mkdir(dividedImageDir )
     generateGridImages(dividingLineImagePath, dividedImageDir, minX, maxX, minY, maxY, gridX, gridY)
 
 if __name__ == '__main__':

@@ -1,5 +1,8 @@
 */__pycache__/
-tmp/
+/tmp/*
+!/tmp/.gitkeep
 .DS_STORE
 json/*.json
 tileImages/*.jpg
+/result/*
+!/result/.gitkeep
