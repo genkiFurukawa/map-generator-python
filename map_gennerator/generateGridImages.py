@@ -29,6 +29,6 @@ def generateGridImages(inputFilePath, outputDir, minX, maxX, minY, maxY, gridSiz
 
             # 途中経過を出力する
             if number % 10 == 0:
-                print(str(datetime.now()) + '   ファイル分割 ' + str(blockSizeY * blockSizeX) + '件中 ' + str(number) + '件完了')
+                print(str(datetime.now()) + '   [info] ファイル分割 ' + str(blockSizeY * blockSizeX) + '件中 ' + str(number) + '件完了')
 
-    print(str(datetime.now()) + '   ファイル分割 ' + str(blockSizeY * blockSizeX) + '件中 ' + str(number - 1) + '件完了')
+    print(str(datetime.now()) + '   [info] ファイル分割 ' + str(blockSizeY * blockSizeX) + '件中 ' + str(number - 1) + '件完了')
